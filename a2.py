@@ -8,25 +8,50 @@ srcPort = -1
 destPort = -1
 
 class MyTCPHandler(socketserver.BaseRequestHandler):
+	BUFFER_SIZE = 4096
 	def handle(self):
 		#connect to server
-		s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 		try:
-			s.connect(("hostname", destPort))
+			s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+			s.connect((hostname, destPort))
 		except:
 			print("could not connect to %s" % hostname)
+			s.close()
 			sys.exit(0)
+			
+		while 1:
+			data = self.request.recv(self.BUFFER_SIZE)
+			if len(data) == self.BUFFER_SIZE:
+				while 1:
+					try:  # error means no more data
+						data += self.request.recv(self.BUFFER_SIZE, socket.MSG_DONTWAIT)
+					except:
+						break
+			dataTxt = data.decode("utf-8")
+			print("<-- %s" % dataTxt)
+			
+			s.send(data)
+			
+			#receive data
+			response = s.recv(self.BUFFER_SIZE)
+			
+			responseTxt = response.decode("utf-8")
+			
+			print("--> %s" % responseTxt)
+			
+			self.request.sendall(response)
+			
 
 if __name__ == "__main__":
 	if len(sys.argv) == 4:
 		srcPort = int(sys.argv[1])
 		hostname = sys.argv[2]
-		destPort = sys.argv[3]
+		destPort = int(sys.argv[3])
 	elif len(sys.argv) == 5:
 		logOptions = sys.argv[1]
 		srcPort = int(sys.argv[2])
 		hostname = sys.argv[3]
-		destPort = sys.argv[4]
+		destPort = int(sys.argv[4])
 			
 	else:
 		print ("wrong number of arguments")
