@@ -1,11 +1,17 @@
 import sys
 import socketserver
 import socket, threading
+import time
 
 hostname = ""
 logOptions = ""
 srcPort = -1
 destPort = -1
+
+def ConsolePrint(dataStr, arrow): #arrow is either --> or <--
+	if logOptions == "-raw":
+		#split on \n
+		#iterate through list of lines, append arrow to each
 
 class MyTCPHandler(socketserver.BaseRequestHandler):
 	BUFFER_SIZE = 4096
@@ -18,7 +24,12 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
 			print("could not connect to %s" % hostname)
 			s.close()
 			sys.exit(0)
-			
+		
+		print("Port logger running: SrcPort=%d, host=%s, dstPort=%d" % (srcPort, hostname, destPort))
+		date = time.strftime("%C")
+		nameOfHost = self.request.gethostname()
+		print("New connection: %s, from %s" % (date, nameOfHost))
+		
 		while 1:
 			data = self.request.recv(self.BUFFER_SIZE)
 			if len(data) == self.BUFFER_SIZE:
