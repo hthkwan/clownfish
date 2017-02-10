@@ -26,7 +26,12 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
 					try:  # error means no more data
 						data += self.request.recv(self.BUFFER_SIZE, socket.MSG_DONTWAIT)
 					except:
-						break
+			#if connection is closed, end the program
+			break
+			if data == '':
+				break
+			
+			#data to be printed and logged
 			dataTxt = data.decode("utf-8")
 			print("<-- %s" % dataTxt)
 			
@@ -35,6 +40,7 @@ class MyTCPHandler(socketserver.BaseRequestHandler):
 			#receive data
 			response = s.recv(self.BUFFER_SIZE)
 			
+			#data to be printed and logged
 			responseTxt = response.decode("utf-8")
 			
 			print("--> %s" % responseTxt)
