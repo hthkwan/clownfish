@@ -1,4 +1,4 @@
-import sys, socket, threading, time, binascii
+import sys, socket, threading, time, binascii, re
 
 hostname = ""
 logOptions = ""
@@ -15,15 +15,26 @@ def loggingOption(data,arrow):
                 print("%s %s" %(arrow,d))
         return
 
+    elif(logOptions == "-split"):
+        for index in range(len(data)):
+            if (data[index] < 0x0A):
+                data[index] = 0x2E
+            elif(data[index] > 0x0A & data[index] < 0x1F):
+                data[index] = 0x2E
+
+        dataTxt = data.decode("utf-8")
+        #re.sub(r'[\x0B-\x0F]', '.', dataTxt)
+        dataList = dataTxt.split('\n')
+        for d in dataList:
+                if(d != ''):
+                    print("%s %s" % (arrow, d))
+
     elif(logOptions=='-hex'):
         dataHex = binascii.hexlify(data)
         dataHex = dataHex.decode("utf-8")
         dataTxt = data.decode("utf-8")
 
 
-
-
-        print("%s %s" % (arrow, dataHex))
 
         return
     else:
@@ -60,8 +71,11 @@ class ProxyServer(threading.Thread):
             data = sock.recv(BUFFER_SIZE)
             dataTxt = data.decode("utf-8")
 
+            key = bytes([0x41, 0x41, 0x42, 0x41, 0x41, 0x41])
+
             ##LOGGING
-            loggingOption(data,outgoingArrow)
+            loggingOption(key, outgoingArrow)
+            #loggingOption(data,outgoingArrow)
             ##LOGGING
 
             if(dataTxt=='shutdown\n'):
