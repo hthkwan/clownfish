@@ -33,8 +33,14 @@ def loggingOption(data,arrow):
         dataHex = binascii.hexlify(data)
         dataHex = dataHex.decode("utf-8")
         dataTxt = data.decode("utf-8")
+        nT=8
+        nH=16
+        dataTxt = ".".join(dataTxt.split("\n"))
+        lineText=[dataTxt[i:i + nT] for i in range(0, len(dataTxt), nT)]
+        lineHex = [dataHex[i:i + nH] for i in range(0, len(dataHex), nH)]
 
-
+        for index in range(len(lineText)):
+            print(lineHex[index]+" | "+lineText[index])
 
         return
     else:
