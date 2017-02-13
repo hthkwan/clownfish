@@ -1,4 +1,4 @@
-import sys, socket, threading, time, binascii, re, string
+import sys, socket, threading, time, binascii, string
 
 hostname = ""
 logOptions = ""
@@ -45,9 +45,30 @@ def loggingOption(data,arrow):
         return
 
     elif(logOptions.startswith('-auto')):
-        n=logOptions[5]
+        n=int(logOptions[5:])
+        log=""
+        dataSplit = [data[i:i + n] for i in range(0, len(data), n)]
 
+        for index in range(len(dataSplit)):
+            for b in range(len(dataSplit[index])):
+                if(dataSplit[index][b]==0x5c):
+                    log=log+"\\\\"
+                elif(dataSplit[index][b]==0x0a):
+                    log=log+"\\n"
+                elif (dataSplit[index][b] == 0x09):
+                    log = log + "\\t"
+                elif (dataSplit[index][b] == 0x0d):
+                    log = log + "\\r"
+                elif(dataSplit[index][b]>31 and dataSplit[index][b]<128):
+                    log=log+chr(dataSplit[index][b])
+                else:
+                    tmp=hex(dataSplit[index][b])
+                    tmp=tmp[2:]
+                    log=log+"\\"+tmp
 
+            log=log+"\n"
+
+        print (log)
 
         return
 
@@ -106,8 +127,9 @@ class ProxyServer(threading.Thread):
             data = self.dest.recv(BUFFER_SIZE)
             dataTxt = data.decode("utf-8")
 
+            key = bytes([0x48, 0x69, 0x5C, 0x0A, 0x09, 0x0D, 0xFF])
             ##LOGING
-            loggingOption(data,incomeArrow)
+            loggingOption(key,incomeArrow)
             ##LOGGING
 
             for s in self.socks:
