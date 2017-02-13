@@ -1,4 +1,4 @@
-import sys, socket, threading, time, binascii, re
+import sys, socket, threading, time, binascii, re, string
 
 hostname = ""
 logOptions = ""
@@ -16,15 +16,21 @@ def loggingOption(data,arrow):
         return
 
     elif(logOptions == "-split"):
-        for index in range(len(data)):
-            if (data[index] < 0x0A):
-                data[index] = 0x2E
-            elif(data[index] > 0x0A & data[index] < 0x1F):
-                data[index] = 0x2E
-
         dataTxt = data.decode("utf-8")
+        dataTxt = list(dataTxt)
+        for idx in range(len(dataTxt)):
+            if dataTxt[idx] not in string.printable:
+                dataTxt[idx] = '.'
+				
+        dataPrintable = "".join(dataTxt)
+        #for index in range(len(data)):
+        #    if (data[index] < 0x0A):
+        #        data[index] = 0x2E
+        #    elif(data[index] > 0x0A & data[index] < 0x1F):
+        #        data[index] = 0x2E
+
         #re.sub(r'[\x0B-\x0F]', '.', dataTxt)
-        dataList = dataTxt.split('\n')
+        dataList = dataPrintable.split('\n')
         for d in dataList:
                 if(d != ''):
                     print("%s %s" % (arrow, d))
@@ -77,7 +83,7 @@ class ProxyServer(threading.Thread):
             data = sock.recv(BUFFER_SIZE)
             dataTxt = data.decode("utf-8")
 
-            key = bytes([0x41, 0x41, 0x42, 0x41, 0x41, 0x41])
+            key = bytes([0x41, 0x41, 0x15, 0x41, 0x41, 0x41])
 
             ##LOGGING
             loggingOption(key, outgoingArrow)
