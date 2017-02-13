@@ -15,7 +15,7 @@ def loggingOption(data,arrow):
                 print("%s %s" %(arrow,d))
         return
 
-    elif(logOptions == "-split"):
+    elif(logOptions == "-strip"):
         dataTxt = data.decode("utf-8")
         dataTxt = list(dataTxt)
         for idx in range(len(dataTxt)):
@@ -40,13 +40,13 @@ def loggingOption(data,arrow):
         lineHex = [dataHex[i:i + nH] for i in range(0, len(dataHex), nH)]
 
         for index in range(len(lineText)):
-            print(lineHex[index]+" | "+lineText[index])
+            print(arrow+" "+lineHex[index]+" | "+lineText[index])
 
         return
 
     elif(logOptions.startswith('-auto')):
         n=int(logOptions[5:])
-        log=""
+        log=arrow+""
         dataSplit = [data[i:i + n] for i in range(0, len(data), n)]
 
         for index in range(len(dataSplit)):
@@ -66,7 +66,7 @@ def loggingOption(data,arrow):
                     tmp=tmp[2:]
                     log=log+"\\"+tmp
 
-            log=log+"\n"
+            log=log+"\n"+arrow
 
         print (log)
 
@@ -103,8 +103,12 @@ class ProxyServer(threading.Thread):
         print("New Connection: %s, from %s"%(date,address[0]))
         BUFFER_SIZE = 4096
         while True:
+            dataTxt=""
             data = sock.recv(BUFFER_SIZE)
-            dataTxt = data.decode("utf-8")
+            try:
+                dataTxt = data.decode("utf-8")
+            except:
+                pass
 
             ##LOGGING
             loggingOption(data,outgoingArrow)
@@ -125,11 +129,9 @@ class ProxyServer(threading.Thread):
         BUFFER_SIZE = 4096
         while True:
             data = self.dest.recv(BUFFER_SIZE)
-            dataTxt = data.decode("utf-8")
 
-            key = bytes([0x48, 0x69, 0x5C, 0x0A, 0x09, 0x0D, 0xFF])
             ##LOGING
-            loggingOption(key,incomeArrow)
+            loggingOption(data,incomeArrow)
             ##LOGGING
 
             for s in self.socks:
