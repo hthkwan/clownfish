@@ -21,15 +21,8 @@ def loggingOption(data,arrow):
         for idx in range(len(dataTxt)):
             if dataTxt[idx] not in string.printable:
                 dataTxt[idx] = '.'
-				
-        dataPrintable = "".join(dataTxt)
-        #for index in range(len(data)):
-        #    if (data[index] < 0x0A):
-        #        data[index] = 0x2E
-        #    elif(data[index] > 0x0A & data[index] < 0x1F):
-        #        data[index] = 0x2E
 
-        #re.sub(r'[\x0B-\x0F]', '.', dataTxt)
+        dataPrintable = "".join(dataTxt)
         dataList = dataPrintable.split('\n')
         for d in dataList:
                 if(d != ''):
@@ -39,9 +32,10 @@ def loggingOption(data,arrow):
         dataHex = binascii.hexlify(data)
         dataHex = dataHex.decode("utf-8")
         dataTxt = data.decode("utf-8")
+        dataTxt = ".".join(dataTxt.split("\n"))
         nT=8
         nH=16
-        dataTxt = ".".join(dataTxt.split("\n"))
+
         lineText=[dataTxt[i:i + nT] for i in range(0, len(dataTxt), nT)]
         lineHex = [dataHex[i:i + nH] for i in range(0, len(dataHex), nH)]
 
@@ -49,6 +43,14 @@ def loggingOption(data,arrow):
             print(lineHex[index]+" | "+lineText[index])
 
         return
+
+    elif(logOptions.startswith('-auto')):
+        n=logOptions[5]
+
+
+
+        return
+
     else:
         return
 
@@ -83,12 +85,9 @@ class ProxyServer(threading.Thread):
             data = sock.recv(BUFFER_SIZE)
             dataTxt = data.decode("utf-8")
 
-            key = bytes([0x41, 0x41, 0x15, 0x41, 0x41, 0x41])
-
             ##LOGGING
-            loggingOption(key, outgoingArrow)
-            #loggingOption(data,outgoingArrow)
-            ##LOGGING
+            loggingOption(data,outgoingArrow)
+            ##LOGGIN
 
             if(dataTxt=='shutdown\n'):
                 self.socks.remove(sock)
